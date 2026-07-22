@@ -1,0 +1,72 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Test 1 - HTML Structure
+      id: test-1
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: test-1
+        setup-command: npm install
+        command: "npx jest -t '1. HTML includes all required element IDs'"
+        timeout: 2
+        max-score: 20
+
+    - name: Test 2 - CSS Linking
+      id: test-2
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: test-2
+        command: "npx jest -t '2. CSS stylesheet is correctly linked in head'"
+        timeout: 2
+        max-score: 20
+
+    - name: Test 3 - Toggle Theme Button
+      id: test-3
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: test-3
+        command: "npx jest -t '3. Clicking #toggle-theme-btn toggles .dark-theme on #profile-card'"
+        timeout: 2
+        max-score: 20
+
+    - name: Test 4 - Adding a valid skill
+      id: test-4
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: test-4
+        command: "npx jest -t '4. Adding a valid skill appends a <li> element and clears input'"
+        timeout: 2
+        max-score: 20
+
+    - name: Test 5 - Prevents empty/whitespace skills
+      id: test-5
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: test-5
+        command: "npx jest -t '5. Prevents adding empty or whitespace-only skills'"
+        timeout: 2
+        max-score: 20
+
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-1_RESULTS: "${{steps.test-1.outputs.result}}"
+        TEST-2_RESULTS: "${{steps.test-2.outputs.result}}"
+        TEST-3_RESULTS: "${{steps.test-3.outputs.result}}"
+        TEST-4_RESULTS: "${{steps.test-4.outputs.result}}"
+        TEST-5_RESULTS: "${{steps.test-5.outputs.result}}"
+      with:
+        runners: test-1,test-2,test-3,test-4,test-5
